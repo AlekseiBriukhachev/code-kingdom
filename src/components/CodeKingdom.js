@@ -1,172 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Code, Lock, CheckCircle, Star, Zap, Book, Target } from 'lucide-react';
+import { Trophy, Code, Lock, CheckCircle, Star, Zap, Book, Target, LogIn } from 'lucide-react';
+
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const CodeKingdom = () => {
-    const [gameState, setGameState] = useState({
-        xp: 0,
-        level: 1,
-        coins: 0,
-        buildings: [],
-        unlockedModules: ['basics'],
-        completedChallenges: []
-    });
-
+    const [username, setUsername] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [gameState, setGameState] = useState(null);
+    const [modules, setModules] = useState([]);
     const [currentModule, setCurrentModule] = useState(null);
     const [currentChallenge, setCurrentChallenge] = useState(null);
     const [userCode, setUserCode] = useState('');
     const [feedback, setFeedback] = useState('');
     const [showVictory, setShowVictory] = useState(false);
-
-    const modules = {
-        basics: {
-            id: 'basics',
-            name: 'Java Basics',
-            icon: '🏠',
-            description: 'Learn variables, data types, and basic syntax',
-            xpRequired: 0,
-            building: 'Startup Garage',
-            challenges: [
-                {
-                    id: 'basics-1',
-                    title: 'Your First Variable',
-                    description: 'Create a String variable named "companyName" with value "CodeKingdom"',
-                    hint: 'Use: String variableName = "value";',
-                    starter: '// Create your variable here\n',
-                    solution: 'String companyName = "CodeKingdom";',
-                    validation: (code) => {
-                        return code.includes('String') &&
-                            code.includes('companyName') &&
-                            code.includes('CodeKingdom');
-                    },
-                    xpReward: 50,
-                    coinReward: 10
-                },
-                {
-                    id: 'basics-2',
-                    title: 'Mathematical Foundation',
-                    description: 'Create two int variables (a=10, b=20) and calculate their sum in a variable named "result"',
-                    hint: 'Declare int variables and use the + operator',
-                    starter: '// Create your variables here\n',
-                    solution: 'int a = 10;\nint b = 20;\nint result = a + b;',
-                    validation: (code) => {
-                        return code.includes('int a') &&
-                            code.includes('int b') &&
-                            code.includes('result') &&
-                            code.includes('+');
-                    },
-                    xpReward: 75,
-                    coinReward: 15
-                },
-                {
-                    id: 'basics-3',
-                    title: 'Method Creation',
-                    description: 'Create a method called "greet" that returns "Hello, Developer!"',
-                    hint: 'Use: public String methodName() { return "value"; }',
-                    starter: '// Create your method here\n',
-                    solution: 'public String greet() {\n    return "Hello, Developer!";\n}',
-                    validation: (code) => {
-                        return code.includes('String greet') &&
-                            code.includes('return') &&
-                            code.includes('Hello, Developer!');
-                    },
-                    xpReward: 100,
-                    coinReward: 25
-                }
-            ]
-        },
-        collections: {
-            id: 'collections',
-            name: 'Collections Framework',
-            icon: '📦',
-            description: 'Master Lists, Sets, Maps, and data structures',
-            xpRequired: 200,
-            building: 'Data Warehouse',
-            challenges: [
-                {
-                    id: 'collections-1',
-                    title: 'Building Inventory',
-                    description: 'Create an ArrayList of Strings to store building names. Add "Garage" and "Warehouse"',
-                    hint: 'Use: ArrayList<String> list = new ArrayList<>(); then list.add("item");',
-                    starter: 'import java.util.ArrayList;\n\n// Create and populate your list\n',
-                    solution: 'ArrayList<String> buildings = new ArrayList<>();\nbuildings.add("Garage");\nbuildings.add("Warehouse");',
-                    validation: (code) => {
-                        return code.includes('ArrayList') &&
-                            code.includes('String') &&
-                            code.includes('add') &&
-                            code.includes('Garage') &&
-                            code.includes('Warehouse');
-                    },
-                    xpReward: 150,
-                    coinReward: 30
-                },
-                {
-                    id: 'collections-2',
-                    title: 'Resource Manager',
-                    description: 'Create a HashMap to map resource names to quantities. Add "wood"->100 and "stone"->50',
-                    hint: 'Use: HashMap<String, Integer> map = new HashMap<>(); then map.put(key, value);',
-                    starter: 'import java.util.HashMap;\n\n// Create your resource map\n',
-                    solution: 'HashMap<String, Integer> resources = new HashMap<>();\nresources.put("wood", 100);\nresources.put("stone", 50);',
-                    validation: (code) => {
-                        return code.includes('HashMap') &&
-                            code.includes('put') &&
-                            code.includes('wood') &&
-                            code.includes('stone');
-                    },
-                    xpReward: 200,
-                    coinReward: 40
-                }
-            ]
-        },
-        multithreading: {
-            id: 'multithreading',
-            name: 'Multithreading',
-            icon: '⚡',
-            description: 'Learn concurrent programming and parallel execution',
-            xpRequired: 500,
-            building: 'Parallel Factory',
-            challenges: [
-                {
-                    id: 'thread-1',
-                    title: 'Worker Thread',
-                    description: 'Create a class that implements Runnable with a run method that prints "Worker active"',
-                    hint: 'Use: class Worker implements Runnable { public void run() { ... } }',
-                    starter: '// Create your Worker class\n',
-                    solution: 'class Worker implements Runnable {\n    public void run() {\n        System.out.println("Worker active");\n    }\n}',
-                    validation: (code) => {
-                        return code.includes('implements Runnable') &&
-                            code.includes('public void run') &&
-                            code.includes('Worker active');
-                    },
-                    xpReward: 250,
-                    coinReward: 50
-                }
-            ]
-        },
-        spring: {
-            id: 'spring',
-            name: 'Spring Framework',
-            icon: '🌱',
-            description: 'Build enterprise applications with Spring',
-            xpRequired: 1000,
-            building: 'Enterprise Tower',
-            challenges: [
-                {
-                    id: 'spring-1',
-                    title: 'Component Creation',
-                    description: 'Create a class annotated with @Component named "UserService"',
-                    hint: 'Use @Component annotation above your class',
-                    starter: '// Create your Spring component\n',
-                    solution: '@Component\npublic class UserService {\n    // service methods\n}',
-                    validation: (code) => {
-                        return code.includes('@Component') &&
-                            code.includes('class UserService');
-                    },
-                    xpReward: 300,
-                    coinReward: 75
-                }
-            ]
-        }
-    };
+    const [loading, setLoading] = useState(false);
 
     const buildings = {
         'Startup Garage': { icon: '🏠', color: 'bg-blue-500' },
@@ -176,26 +23,54 @@ const CodeKingdom = () => {
     };
 
     useEffect(() => {
-        const xpForNextLevel = gameState.level * 200;
-        if (gameState.xp >= xpForNextLevel) {
-            setGameState(prev => ({
-                ...prev,
-                level: prev.level + 1
-            }));
-
-            Object.values(modules).forEach(module => {
-                if (module.xpRequired <= gameState.xp && !gameState.unlockedModules.includes(module.id)) {
-                    setGameState(prev => ({
-                        ...prev,
-                        unlockedModules: [...prev.unlockedModules, module.id]
-                    }));
-                }
-            });
+        if (isLoggedIn) {
+            loadGameState();
+            loadModules();
         }
-    }, [gameState.xp]);
+    }, [isLoggedIn]);
+
+    const loadGameState = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/game-state/${username}`);
+            const data = await response.json();
+            setGameState(data);
+        } catch (error) {
+            console.error('Error loading game state:', error);
+        }
+    };
+
+    const loadModules = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/modules`);
+            const data = await response.json();
+            setModules(data);
+        } catch (error) {
+            console.error('Error loading modules:', error);
+        }
+    };
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        if (username.trim()) {
+            setLoading(true);
+            try {
+                await fetch(`${API_BASE_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username.trim() })
+                });
+                setIsLoggedIn(true);
+            } catch (error) {
+                console.error('Error creating user:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
 
     const selectModule = (moduleId) => {
-        setCurrentModule(moduleId);
+        const module = modules.find(m => m.id === moduleId);
+        setCurrentModule(module);
         setCurrentChallenge(null);
         setUserCode('');
         setFeedback('');
@@ -208,49 +83,103 @@ const CodeKingdom = () => {
         setShowVictory(false);
     };
 
-    const submitCode = () => {
+    const submitCode = async () => {
         if (!currentChallenge) return;
 
-        const isCorrect = currentChallenge.validation(userCode);
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: username,
+                    challengeId: currentChallenge.id,
+                    code: userCode
+                })
+            });
 
-        if (isCorrect) {
-            const alreadyCompleted = gameState.completedChallenges.includes(currentChallenge.id);
+            const result = await response.json();
 
-            if (!alreadyCompleted) {
-                const newXp = gameState.xp + currentChallenge.xpReward;
-                const newCoins = gameState.coins + currentChallenge.coinReward;
-                const newBuildings = [...gameState.buildings];
-
-                const module = modules[currentModule];
-                if (!newBuildings.includes(module.building)) {
-                    newBuildings.push(module.building);
+            if (result.success) {
+                setGameState(result.gameState);
+                if (result.xpEarned > 0) {
+                    setFeedback(`✅ ${result.message}`);
+                    setShowVictory(true);
+                } else {
+                    setFeedback(`✅ ${result.message}`);
                 }
-
-                setGameState(prev => ({
-                    ...prev,
-                    xp: newXp,
-                    coins: newCoins,
-                    buildings: newBuildings,
-                    completedChallenges: [...prev.completedChallenges, currentChallenge.id]
-                }));
-
-                setFeedback('✅ Perfect! Challenge completed!');
-                setShowVictory(true);
             } else {
-                setFeedback('✅ Correct! (Already completed)');
+                setFeedback(`❌ ${result.message}`);
             }
-        } else {
-            setFeedback('❌ Not quite right. Check the hint and try again!');
+        } catch (error) {
+            console.error('Error submitting code:', error);
+            setFeedback('❌ Error submitting code. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
     const isModuleUnlocked = (moduleId) => {
-        return gameState.unlockedModules.includes(moduleId);
+        return gameState?.unlockedModules.includes(moduleId);
     };
 
     const isChallengeCompleted = (challengeId) => {
-        return gameState.completedChallenges.includes(challengeId);
+        return gameState?.completedChallenges.includes(challengeId);
     };
+
+    if (!isLoggedIn) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center p-6">
+                <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-12 max-w-md w-full border border-purple-500/30 shadow-2xl">
+                    <div className="text-center mb-8">
+                        <Code className="w-20 h-20 mx-auto mb-4 text-purple-400" />
+                        <h1 className="text-4xl font-bold mb-2">CodeKingdom</h1>
+                        <p className="text-gray-400">Master Java. Build Your Empire.</p>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Choose Your Username</label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none text-white"
+                                placeholder="Enter username..."
+                                required
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 px-6 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? (
+                                'Loading...'
+                            ) : (
+                                <>
+                                    <LogIn className="w-5 h-5 inline mr-2" />
+                                    Start Your Journey
+                                </>
+                            )}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
+    if (!gameState) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-gray-400">Loading your kingdom...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-6">
@@ -262,7 +191,7 @@ const CodeKingdom = () => {
                             <Code className="w-10 h-10 text-purple-400" />
                             CodeKingdom
                         </h1>
-                        <p className="text-gray-400 mt-1">Master Java. Build Your Empire.</p>
+                        <p className="text-gray-400 mt-1">Welcome back, {username}!</p>
                     </div>
                     <div className="flex gap-6">
                         <div className="bg-purple-800/40 px-6 py-3 rounded-lg backdrop-blur">
@@ -326,7 +255,7 @@ const CodeKingdom = () => {
                         Learning Modules
                     </h2>
                     <div className="space-y-3">
-                        {Object.values(modules).map(module => {
+                        {modules.map(module => {
                             const unlocked = isModuleUnlocked(module.id);
                             const completedCount = module.challenges.filter(c =>
                                 isChallengeCompleted(c.id)
@@ -338,10 +267,10 @@ const CodeKingdom = () => {
                                     onClick={() => unlocked && selectModule(module.id)}
                                     disabled={!unlocked}
                                     className={`w-full text-left p-4 rounded-lg transition transform hover:scale-105 ${unlocked
-                                            ? currentModule === module.id
-                                                ? 'bg-purple-600 shadow-lg shadow-purple-500/50'
-                                                : 'bg-gray-800/50 hover:bg-gray-700/50 backdrop-blur'
-                                            : 'bg-gray-900/30 opacity-50 cursor-not-allowed'
+                                        ? currentModule?.id === module.id
+                                            ? 'bg-purple-600 shadow-lg shadow-purple-500/50'
+                                            : 'bg-gray-800/50 hover:bg-gray-700/50 backdrop-blur'
+                                        : 'bg-gray-900/30 opacity-50 cursor-not-allowed'
                                         }`}
                                 >
                                     <div className="flex items-center justify-between mb-2">
@@ -379,15 +308,15 @@ const CodeKingdom = () => {
                         </div>
                     ) : !currentChallenge ? (
                         <div>
-                            <h2 className="text-2xl font-bold mb-4">{modules[currentModule].name}</h2>
+                            <h2 className="text-2xl font-bold mb-4">{currentModule.name}</h2>
                             <div className="space-y-3">
-                                {modules[currentModule].challenges.map(challenge => (
+                                {currentModule.challenges.map(challenge => (
                                     <button
                                         key={challenge.id}
                                         onClick={() => selectChallenge(challenge)}
                                         className={`w-full text-left p-4 rounded-lg transition transform hover:scale-105 ${isChallengeCompleted(challenge.id)
-                                                ? 'bg-green-800/30 border border-green-500/30'
-                                                : 'bg-gray-800/50 hover:bg-gray-700/50'
+                                            ? 'bg-green-800/30 border border-green-500/30'
+                                            : 'bg-gray-800/50 hover:bg-gray-700/50'
                                             } backdrop-blur`}
                                     >
                                         <div className="flex items-center justify-between mb-2">
@@ -435,17 +364,18 @@ const CodeKingdom = () => {
                             <div className="flex gap-4">
                                 <button
                                     onClick={submitCode}
-                                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 py-3 px-6 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105 shadow-lg"
+                                    disabled={loading}
+                                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 py-3 px-6 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Zap className="w-5 h-5 inline mr-2" />
-                                    Submit Code
+                                    {loading ? 'Submitting...' : 'Submit Code'}
                                 </button>
                             </div>
 
                             {feedback && (
                                 <div className={`mt-4 p-4 rounded-lg ${feedback.includes('✅')
-                                        ? 'bg-green-800/30 border border-green-500/30'
-                                        : 'bg-red-800/30 border border-red-500/30'
+                                    ? 'bg-green-800/30 border border-green-500/30'
+                                    : 'bg-red-800/30 border border-red-500/30'
                                     }`}>
                                     <p className="font-semibold">{feedback}</p>
                                     {showVictory && (
