@@ -26,6 +26,16 @@ function App() {
     }
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    // Auto-select Java Basics module for new users
+    if (modules.length > 0 && gameState && !currentModule) {
+      const basicsModule = modules.find(m => m.id === 'basics');
+      if (basicsModule && gameState.unlockedModules.includes('basics')) {
+        setCurrentModule(basicsModule);
+      }
+    }
+  }, [modules, gameState]);
+
   const loadGameState = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/game-state/${username}`);

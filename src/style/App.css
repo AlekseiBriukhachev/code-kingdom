@@ -463,6 +463,13 @@ body {
   margin-top: 0.5rem;
 }
 
+.module-active-indicator {
+  font-size: 0.75rem;
+  color: #c084fc;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
 /* Challenge Area */
 .challenge-area-container {
   display: flex;

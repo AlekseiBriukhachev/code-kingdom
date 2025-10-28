@@ -21,6 +21,7 @@ function ModuleList({
                     const completedCount = module.challenges.filter(c =>
                         isChallengeCompleted(c.id)
                     ).length;
+                    const isActive = currentModule?.id === module.id;
 
                     return (
                         <button
@@ -28,10 +29,10 @@ function ModuleList({
                             onClick={() => unlocked && selectModule(module.id)}
                             disabled={!unlocked}
                             className={`module-card ${unlocked
-                                ? currentModule?.id === module.id
-                                    ? 'module-active'
-                                    : 'module-unlocked'
-                                : 'module-locked'
+                                    ? isActive
+                                        ? 'module-active'
+                                        : 'module-unlocked'
+                                    : 'module-locked'
                                 }`}
                         >
                             <div className="module-header">
@@ -52,6 +53,9 @@ function ModuleList({
                                 <p className="module-progress">
                                     {completedCount}/{module.challenges.length} completed
                                 </p>
+                            )}
+                            {isActive && unlocked && (
+                                <p className="module-active-indicator">Currently Active</p>
                             )}
                         </button>
                     );
