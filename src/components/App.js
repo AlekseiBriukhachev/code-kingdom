@@ -9,6 +9,7 @@ import { useGameState } from '../hooks/useGameState';
 import { apiService } from '../services/apiService';
 import RegisterScreen from './RegisterScreen';
 import LoginScreen from './LoginScreen';
+import { apiServiceMock } from '../mocks/apiServiceMock';
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
@@ -42,11 +43,12 @@ function AppContent() {
         setCurrentModule(basicsModule);
       }
     }
-  }, [modules, gameState]);
+  }, [modules, gameState, currentModule]);
 
   const loadModules = async () => {
     try {
-      const data = await apiService.get('/modules');
+      // const data = await apiService.get('/modules');
+      const data = await apiServiceMock.get('/modules');
       setModules(data);
     } catch (error) {
       console.error('Error loading modules:', error);
@@ -73,7 +75,8 @@ function AppContent() {
 
     setSubmitting(true);
     try {
-      const result = await apiService.post('/submit', {
+      // const result = await apiService.post('/submit', {
+      const result = await apiServiceMock.post('/submit', {
         username: user.username,
         challengeId: currentChallenge.id,
         code: userCode

@@ -29,10 +29,10 @@ function ModuleList({
                             onClick={() => unlocked && selectModule(module.id)}
                             disabled={!unlocked}
                             className={`module-card ${unlocked
-                                    ? isActive
-                                        ? 'module-active'
-                                        : 'module-unlocked'
-                                    : 'module-locked'
+                                ? isActive
+                                    ? 'module-active'
+                                    : 'module-unlocked'
+                                : 'module-locked'
                                 }`}
                         >
                             <div className="module-header">

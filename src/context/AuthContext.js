@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { authService } from "../services/authServise";
+// import { authService } from "../services/authServise";
+import { authServiceMock } from "../mocks/authServiseMock";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        throw new Error('useAuth must be used within AuthProvider');
     }
     return context;
 };
@@ -17,7 +18,8 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         // Check if user is logged in on mount
-        const token = authService.getToken();
+        // const token = authService.getToken();
+        const token = authServiceMock.getToken();
         const savedUser = localStorage.getItem('user');
 
         if (token && savedUser) {
@@ -27,7 +29,8 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (username, password) => {
-        const data = await authService.login(username, password);
+        // const data = await authService.login(username, password);
+        const data = await authServiceMock.login(username, password);
         const userData = {
             username: data.username,
             email: data.email,
@@ -39,7 +42,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (username, email, password) => {
-        const data = await authService.register(username, email, password);
+        // const data = await authService.register(username, email, password);
+        const data = await authServiceMock.register(username, email, password);
         const userData = {
             username: data.username,
             email: data.email,
@@ -51,7 +55,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        authService.logout();
+        // authService.logout();
+        authServiceMock.logout();
         setUser(null);
     };
 

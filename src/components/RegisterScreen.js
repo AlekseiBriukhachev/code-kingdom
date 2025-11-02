@@ -5,8 +5,8 @@ import { Code, UserPlus } from "lucide-react"
 function RegisterScreen({ onSwitchToLogin }) {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
-    const [password, SetPassword] = useState('');
-    const [confirmationPassword, setConfirmationPassword] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { register } = useAuth();
@@ -15,13 +15,13 @@ function RegisterScreen({ onSwitchToLogin }) {
         e.preventDefault();
         setError('');
 
-        if (password !== confirmationPassword) {
+        if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;
         }
 
         if (password.length < 6) {
-            setError('Password must be at least 6 characters long');
+            setError('Password must be at least 6 characters');
             return;
         }
 
@@ -81,7 +81,7 @@ function RegisterScreen({ onSwitchToLogin }) {
                         <input
                             type="password"
                             value={password}
-                            onChange={(e) => SetPassword(e.target.value)}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="form-input"
                             placeholder="At least 6 characters"
                             required
@@ -93,8 +93,8 @@ function RegisterScreen({ onSwitchToLogin }) {
                         <label className="form-label">Confirm Password</label>
                         <input
                             type="password"
-                            value={confirmationPassword}
-                            onChange={(e) => setConfirmationPassword(e.target.value)}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             className="form-input"
                             placeholder="Confirm your password"
                             required
@@ -129,7 +129,7 @@ function RegisterScreen({ onSwitchToLogin }) {
                 </form>
             </div>
         </div>
-    )
+    );
 }
 
 export default RegisterScreen;
