@@ -18,15 +18,19 @@ export const authService = {
     },
 
     async login(email, password) {
+        const reqBody = JSON.stringify({ email, password });
+        console.log('Login request body:', reqBody);
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: reqBody
         });
 
+        console.log('Login response status:', response);
+
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Login failed');
+            const error = await response;
+            throw new Error(error.statusText || 'Login failed');
         }
 
         const data = await response.json();

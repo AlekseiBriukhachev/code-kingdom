@@ -17,8 +17,7 @@ export const useGameState = (username) => {
         setError(null);
 
         try {
-            //     // const data = await apiService.get(`/game-state/${username}`);
-            const data = await apiServiceMock.get(`/game-state/${username}`);
+            const data = await apiService.get(`/game-state/${username}`);
             setGameState(data);
             setCachedGameState(data); // Save to localStorage
         } catch (err) {
@@ -49,7 +48,7 @@ export const useGameState = (username) => {
             // Then load fresh data from server
             loadGameState();
         }
-    }, [username, cachedGameState, loadGameState]);
+    }, [username]);
 
     const updateGameState = useCallback((updates) => {
         setGameState(prev => {

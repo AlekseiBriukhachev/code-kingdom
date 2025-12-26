@@ -47,8 +47,8 @@ function AppContent() {
 
   const loadModules = async () => {
     try {
-      // const data = await apiService.get('/modules');
-      const data = await apiServiceMock.get('/modules');
+      const data = await apiService.get('/modules');
+      // const data = await apiServiceMock.get('/modules');
       setModules(data);
     } catch (error) {
       console.error('Error loading modules:', error);
@@ -75,8 +75,7 @@ function AppContent() {
 
     setSubmitting(true);
     try {
-      // const result = await apiService.post('/submit', {
-      const result = await apiServiceMock.post('/submit', {
+      const result = await apiService.post('/submit', {
         username: user.username,
         challengeId: currentChallenge.id,
         code: userCode

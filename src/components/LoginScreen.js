@@ -46,7 +46,7 @@ function LoginScreen({ onSwitchToRegister }) {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="form-input"
-                            placeholder="Enter your username"
+                            placeholder="Enter your email"
                             required
                         />
                     </div>
