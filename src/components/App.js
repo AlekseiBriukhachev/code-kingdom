@@ -1,77 +1,57 @@
 import '../style/App.css';
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL, buildings } from '../utils/constants';
-import LoginScreen from './LoginScreen';
 import Header from './Header';
 import KingdomView from './KingdomView';
 import ModuleList from './ModuleList';
 import ChallengeArea from './ChallengeArea';
+import { AuthProvider, useAuth } from '../context/AuthContext';
+import { useGameState } from '../hooks/useGameState';
+import { apiService } from '../services/apiService';
+import RegisterScreen from './RegisterScreen';
+import LoginScreen from './LoginScreen';
+import { apiServiceMock } from '../mocks/apiServiceMock';
 
-function App() {
-  const [username, setUsername] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [gameState, setGameState] = useState(null);
+function AppContent() {
+  const { user, loading: authLoading } = useAuth();
+  const [showRegister, setShowRegister] = useState(false);
   const [modules, setModules] = useState([]);
   const [currentModule, setCurrentModule] = useState(null);
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [userCode, setUserCode] = useState('');
   const [feedback, setFeedback] = useState('');
   const [showVictory, setShowVictory] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const {
+    gameState,
+    loading: gameLoading,
+    updateGameState,
+    loadGameState
+  } = useGameState(user?.username);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      loadGameState();
+    if (user) {
       loadModules();
     }
-  }, [isLoggedIn]);
+  }, [user]);
 
   useEffect(() => {
-    // Auto-select Java Basics module for new users
+    // Auto-select Java Basics module for users
     if (modules.length > 0 && gameState && !currentModule) {
       const basicsModule = modules.find(m => m.id === 'basics');
       if (basicsModule && gameState.unlockedModules.includes('basics')) {
         setCurrentModule(basicsModule);
       }
     }
-  }, [modules, gameState]);
-
-  const loadGameState = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/game-state/${username}`);
-      const data = await response.json();
-      setGameState(data);
-    } catch (error) {
-      console.error('Error loading game state:', error);
-    }
-  };
+  }, [modules, gameState, currentModule]);
 
   const loadModules = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/modules`);
-      const data = await response.json();
+      const data = await apiService.get('/modules');
+      // const data = await apiServiceMock.get('/modules');
       setModules(data);
     } catch (error) {
       console.error('Error loading modules:', error);
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (username.trim()) {
-      setLoading(true);
-      try {
-        await fetch(`${API_BASE_URL}/users`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: username.trim() })
-        });
-        setIsLoggedIn(true);
-      } catch (error) {
-        console.error('Error creating user:', error);
-      } finally {
-        setLoading(false);
-      }
     }
   };
 
@@ -91,24 +71,18 @@ function App() {
   };
 
   const submitCode = async () => {
-    if (!currentChallenge) return;
+    if (!currentChallenge || !user) return;
 
-    setLoading(true);
+    setSubmitting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username,
-          challengeId: currentChallenge.id,
-          code: userCode
-        })
+      const result = await apiService.post('/submit', {
+        username: user.username,
+        challengeId: currentChallenge.id,
+        code: userCode
       });
 
-      const result = await response.json();
-
       if (result.success) {
-        setGameState(result.gameState);
+        updateGameState(result.gameState);
         if (result.xpEarned > 0) {
           setFeedback(`✅ ${result.message}`);
           setShowVictory(true);
@@ -119,10 +93,9 @@ function App() {
         setFeedback(`❌ ${result.message}`);
       }
     } catch (error) {
-      console.error('Error submitting code:', error);
       setFeedback('❌ Error submitting code. Please try again.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -134,18 +107,26 @@ function App() {
     return gameState?.completedChallenges.includes(challengeId);
   };
 
-  if (!isLoggedIn) {
+  if (authLoading) {
     return (
-      <LoginScreen
-        username={username}
-        setUsername={setUsername}
-        handleLogin={handleLogin}
-        loading={loading}
-      />
+      <div className="loading-screen">
+        <div className="loading-content">
+          <div className="spinner"></div>
+          <p className="loading-text">Loading...</p>
+        </div>
+      </div>
     );
   }
 
-  if (!gameState) {
+  if (!user) {
+    return showRegister ? (
+      <RegisterScreen onSwitchToLogin={() => setShowRegister(false)} />
+    ) : (
+      <LoginScreen onSwitchToRegister={() => setShowRegister(true)} />
+    );
+  }
+
+  if (gameLoading && !gameState) {
     return (
       <div className="loading-screen">
         <div className="loading-content">
@@ -158,8 +139,8 @@ function App() {
 
   return (
     <div className="app-container">
-      <Header username={username} gameState={gameState} />
-      <KingdomView buildings={gameState.buildings} />
+      <Header username={user.username} gameState={gameState} />
+      <KingdomView buildings={gameState?.buildings || []} />
 
       <div className="main-content">
         <ModuleList
@@ -178,7 +159,7 @@ function App() {
           setUserCode={setUserCode}
           feedback={feedback}
           showVictory={showVictory}
-          loading={loading}
+          loading={submitting}
           isChallengeCompleted={isChallengeCompleted}
           selectChallenge={selectChallenge}
           setCurrentChallenge={setCurrentChallenge}
@@ -186,6 +167,14 @@ function App() {
         />
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

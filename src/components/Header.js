@@ -16,15 +16,15 @@ function Header({ username, gameState }) {
                 <div className="stats-container">
                     <div className="stat-card stat-purple">
                         <div className="stat-label">Level</div>
-                        <div className="stat-value">{gameState.level}</div>
+                        <div className="stat-value">{gameState?.level}</div>
                     </div>
                     <div className="stat-card stat-blue">
                         <div className="stat-label">XP</div>
-                        <div className="stat-value">{gameState.xp}</div>
+                        <div className="stat-value">{gameState?.xp}</div>
                     </div>
                     <div className="stat-card stat-yellow">
                         <div className="stat-label">Coins</div>
-                        <div className="stat-value">💰 {gameState.coins}</div>
+                        <div className="stat-value">💰 {gameState?.coins}</div>
                     </div>
                 </div>
             </div>
@@ -33,11 +33,11 @@ function Header({ username, gameState }) {
                 <div className="progress-bar">
                     <div
                         className="progress-fill"
-                        style={{ width: `${(gameState.xp % (gameState.level * 200)) / (gameState.level * 200) * 100}%` }}
+                        style={{ width: `${(gameState?.xp % (gameState?.level * 200)) / (gameState?.level * 200) * 100}%` }}
                     />
                 </div>
                 <p className="progress-text">
-                    {gameState.xp % (gameState.level * 200)} / {gameState.level * 200} XP to Level {gameState.level + 1}
+                    {gameState?.xp % (gameState?.level * 200)} / {gameState?.level * 200} XP to Level {gameState?.level + 1}
                 </p>
             </div>
         </div>
