@@ -52,7 +52,6 @@ function AppContent() {
   const loadModules = async () => {
     try {
       const data = await apiService.get('/modules');
-      console.log('Loaded modules:', data);
       setModules(data);
     } catch (error) {
       console.error('Error loading modules:', error);

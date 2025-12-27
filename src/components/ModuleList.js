@@ -36,13 +36,6 @@ function ModuleList({
                                 : 'module-locked'
                                 }`}
                         >
-                            {/* <div className="module-header">
-                                <span className="module-icon">{module.icon}</span>
-                                {!unlocked && <Lock className="lock-icon" />}
-                                {unlocked && completedCount === module.challenges.length && (
-                                    <CheckCircle className="check-icon" />
-                                )}
-                            </div> */}
                             <h3 className="module-title">{module.name}</h3>
                             <p className="module-description">{module.description}</p>
                             {!unlocked && (
