@@ -17,7 +17,8 @@ function ModuleList({
             </h2>
             <div className="module-list">
                 {modules.map(module => {
-                    const unlocked = isModuleUnlocked(module.id);
+                    // Module is unlocked if: it's in unlockedModules OR it requires 0 XP (starter module)
+                    const unlocked = isModuleUnlocked(module.id) || module.xpRequired === 0;
                     const completedCount = module.challenges.filter(c =>
                         isChallengeCompleted(c.id)
                     ).length;
@@ -35,13 +36,13 @@ function ModuleList({
                                 : 'module-locked'
                                 }`}
                         >
-                            <div className="module-header">
+                            {/* <div className="module-header">
                                 <span className="module-icon">{module.icon}</span>
                                 {!unlocked && <Lock className="lock-icon" />}
                                 {unlocked && completedCount === module.challenges.length && (
                                     <CheckCircle className="check-icon" />
                                 )}
-                            </div>
+                            </div> */}
                             <h3 className="module-title">{module.name}</h3>
                             <p className="module-description">{module.description}</p>
                             {!unlocked && (
