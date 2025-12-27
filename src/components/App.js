@@ -9,7 +9,6 @@ import { useGameState } from '../hooks/useGameState';
 import { apiService } from '../services/apiService';
 import RegisterScreen from './RegisterScreen';
 import LoginScreen from './LoginScreen';
-import { apiServiceMock } from '../mocks/apiServiceMock';
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
@@ -32,6 +31,8 @@ function AppContent() {
   useEffect(() => {
     if (user) {
       loadModules();
+      // Reload game state to ensure unlocked modules are fresh
+      loadGameState();
     }
   }, [user]);
 
@@ -41,6 +42,9 @@ function AppContent() {
       const basicsModule = modules.find(m => m.id === 'basics');
       if (basicsModule && gameState.unlockedModules.includes('basics')) {
         setCurrentModule(basicsModule);
+      } else if (basicsModule && modules.length > 0) {
+        // If basics not in unlockedModules yet, still set it as it requires 0 XP
+        setCurrentModule(basicsModule);
       }
     }
   }, [modules, gameState, currentModule]);
@@ -48,7 +52,7 @@ function AppContent() {
   const loadModules = async () => {
     try {
       const data = await apiService.get('/modules');
-      // const data = await apiServiceMock.get('/modules');
+      console.log('Loaded modules:', data);
       setModules(data);
     } catch (error) {
       console.error('Error loading modules:', error);
