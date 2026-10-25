@@ -1,0 +1,36 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:h2:mem:codekingdom
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+  flyway:
+    baseline-on-migrate: true
+    baseline-description: "Initial baseline"
+    enabled: false
+
+app:
+  jwt:
+    secret: dev-secret-key-change-in-production
+    expiration: 86400000  # 1 day in milliseconds
+  cors:
+    allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    root: INFO
+    com.aleksdev.code.kingdom: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
